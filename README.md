@@ -1,4 +1,4 @@
-# Alien::Xenolith
+# Alien::Xenolith [![Build Status](https://secure.travis-ci.org/plicease/Alien-Xenolith.png)](http://travis-ci.org/plicease/Alien-Xenolith)
 
 Smooth interface for external libraries
 
