@@ -26,6 +26,8 @@ sub new
 {
   my($class) = @_;
 
+  return $class if ref $class;
+
   my $config;
 
   foreach my $try ($class->get_configs)
@@ -58,7 +60,7 @@ in which case the latest version will be used.
 
 =cut
 
-sub cflags { shift->{cflags} }
+sub cflags { shift->new->{cflags} }
 
 =head2 libs
 
@@ -70,7 +72,7 @@ in which case the latest version will be used.
 
 =cut
 
-sub libs { shift->{libs} }
+sub libs { shift->new->{libs} }
 
 =head2 dlls
 
@@ -82,7 +84,17 @@ in which case the latest version will be used.
 
 =cut
 
-sub dlls { shift->{dlls} }
+sub dlls { shift->new->{dlls} }
+
+=head2 timestamp
+
+ my $timestamp = $alien->timestamp;
+
+Returns the timestamp for the given alien instance.
+
+=cut
+
+sub timestamp { shift->{timestamp} }
 
 =head2 version
 
@@ -94,7 +106,7 @@ in which case the latest version will be used.
 
 =cut
 
-sub version { shift->{version} }
+sub version { shift->new->{version} }
 
 =head2 perl_id
 

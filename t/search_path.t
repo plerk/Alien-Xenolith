@@ -2,7 +2,7 @@ use strict;
 use warnings;
 use File::HomeDir::Test;
 use File::HomeDir;
-use Test::More tests => 5;
+use Test::More tests => 6;
 use File::Spec;
 use File::Path qw( mkpath );
 use lib File::Spec->catdir( 'corpus', 'search_path', 'lib' );
@@ -55,7 +55,7 @@ subtest 'fetch configs' => sub {
 };
 
 subtest 'fetch latest' => sub {
-  plan tests => 5;
+  plan tests => 6;
   
   my $alien = eval { Alien::Foo->new };
   isa_ok $alien, 'Alien::Foo';
@@ -71,4 +71,26 @@ subtest 'fetch latest' => sub {
   
   is eval { $alien->dlls->[0] }, 'foo2.dll', 'dlls = foo2.dll';
   diag $@ if $@;
+  
+  like eval { $alien->timestamp }, qr{^[1-9][0-9]*$}, 'timestamp';
+  diag $@ if $@;
+};
+
+subtest 'class methods' => sub {
+  plan tests => 4;
+  
+  my $alien = 'Alien::Foo';
+  
+  is eval { $alien->version }, '1.1.2', 'version = 1.1.2';
+  diag $@ if $@;
+  
+  is eval { $alien->cflags }, '-IFoo', 'cflags = -IFoo';
+  diag $@ if $@;
+
+  is eval { $alien->libs }, '-lm', 'libs = -lm';
+  diag $@ if $@;
+  
+  is eval { $alien->dlls->[0] }, 'foo2.dll', 'dlls = foo2.dll';
+  diag $@ if $@;
+  
 };
