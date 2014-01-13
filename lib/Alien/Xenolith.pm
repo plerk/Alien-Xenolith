@@ -2,12 +2,6 @@ package Alien::Xenolith;
 
 use strict;
 use warnings;
-use File::ShareDir ();
-use File::Path     ();
-use File::HomeDir;
-use Config;
-use File::Spec;
-use Sort::Versions ();
 
 # ABSTRACT: Smooth interface for external libraries
 # VERSION
@@ -75,6 +69,9 @@ sub new
   my $config;
 
   my @configs = $args{config} ? ($args{config}) : ($class->get_configs);
+
+  require Sort::Versions
+    unless $args{cmp};
 
   foreach my $try (@configs)
   {
@@ -185,7 +182,9 @@ do {
     {
       my $ver = $];
       $ver =~ s/\./_/g;
-      $perl_id = File::Spec->catdir($ver, $Config{archname})
+      require Config;
+      require File::Spec;
+      $perl_id = File::Spec->catdir($ver, $Config::Config{archname})
     }
     $perl_id;
   }
@@ -206,6 +205,9 @@ sub search_path
 
   my @search_path;
 
+  require File::ShareDir;
+  require File::Spec;
+  
   my $dir = eval { File::ShareDir::module_dir($class) };
   if(defined $dir)
   {
@@ -221,12 +223,14 @@ sub search_path
 
   if(defined $ENV{XENOLITH_PATH})
   {
-    foreach my $dir (split $Config{path_sep}, $ENV{XENOLITH_PATH})
+    require Config;
+    foreach my $dir (split $Config::Config{path_sep}, $ENV{XENOLITH_PATH})
     {
       push @search_path, File::Spec->catdir($dir, $name);
     }
   }
 
+  require File::HomeDir;
   push @search_path, do {
     my $dir = File::Spec->catdir(
       File::HomeDir->my_dist_data('Alien-Xenolith', { create => 1 } ),
@@ -249,6 +253,8 @@ Return the first directory in the search path that is writable.
 sub install_path
 {
   my($class) = @_;
+
+  require File::Path;
 
   foreach my $dir ($class->search_path)
   {    
@@ -273,6 +279,8 @@ sub get_configs
   my($class) = @_;
 
   my @config_list;
+
+  require File::Spec;
 
   foreach my $dir1 ($class->search_path)
   {
