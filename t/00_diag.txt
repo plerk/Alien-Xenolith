@@ -1,2 +1,6 @@
+File::HomeDir
+File::Path
+File::ShareDir
 Module::Build
 Test::More
+lib

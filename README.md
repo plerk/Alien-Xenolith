@@ -2,6 +2,20 @@
 
 Smooth interface for external libraries
 
+# METHODS
+
+## perl\_id
+
+    my $perl_id = Alien::Xenolith->perl_id;
+
+Identifier for the current Perl which can be used as a component of a directory path.
+
+## search\_path
+
+    my @list = Alien::Foo->search_path
+
+List of directories to search for Xenolith configurations.
+
 # AUTHOR
 
 Graham Ollis <plicease@cpan.org>
