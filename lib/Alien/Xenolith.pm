@@ -7,11 +7,94 @@ use File::Path     ();
 use File::HomeDir;
 use Config;
 use File::Spec;
+use Sort::Versions ();
 
 # ABSTRACT: Smooth interface for external libraries
 # VERSION
 
 =head1 METHODS
+
+=head2 new
+
+ my $alien = Alien::Foo->new;
+
+Create a new instance of an alien object.
+
+=cut
+
+sub new
+{
+  my($class) = @_;
+
+  my $config;
+
+  foreach my $try ($class->get_configs)
+  {
+    if(defined $config)
+    {
+      # TODO: when version is not defined short-circut to timestamp
+      my $cmp = Sort::Versions::versioncmp($config->{version}, $try->{version});
+      $cmp = $config->{timestamp} <=> $try->{timestamp} if $cmp == 0;
+      $config = $try if $cmp < 0;
+    }
+    else
+    {
+      $config = $try;
+    }
+  }
+  
+  die "unable to find viable config for $class" unless defined $config;
+  
+  bless $config, $class;
+}
+
+=head2 cflags
+
+ my $cflags = $alien->cflags;
+ my $cflags = Alien::Foo->cflags;
+
+Returns the cflags needed for compiling with the given alien instance.  Can be called as a class method,
+in which case the latest version will be used.
+
+=cut
+
+sub cflags { shift->{cflags} }
+
+=head2 libs
+
+ my $libs = $alien->libs;
+ my $libs = Alien::Foo->libs;
+
+Returns the libs needed for linking with the given alien instance.  Can be called as a class method,
+in which case the latest version will be used.
+
+=cut
+
+sub libs { shift->{libs} }
+
+=head2 dlls
+
+ my $dlls = $alien->dlls;
+ my $dlls = Alien::Foo->dlls;
+
+Returns the dlls for with the given alien instance.  Can be called as a class method,
+in which case the latest version will be used.
+
+=cut
+
+sub dlls { shift->{dlls} }
+
+=head2 version
+
+ my $version = $alien->version;
+ my $version = Alien::Foo->version;
+
+Returns the version of the given alien instance.  Can be called as a class method,
+in which case the latest version will be used.
+
+=cut
+
+sub version { shift->{version} }
 
 =head2 perl_id
 
@@ -103,6 +186,43 @@ sub install_path
   }
   
   die "could not find a writable install path for $class";
+}
+
+=head2 get_configs
+
+ my @configs = Alien::Foo->get_configs;
+
+Return a list of hash refs that represent possible Xenolith configs.
+
+=cut
+
+sub get_configs
+{
+  my($class) = @_;
+
+  my @config_list;
+
+  foreach my $dir1 ($class->search_path)
+  {
+    next unless -d $dir1;
+    my @subdirs;
+    do {
+      my $dh;
+      opendir $dh, $dir1;
+      @subdirs = map { File::Spec->catdir($dir1, $_) } grep !/^\./, readdir $dh;
+      closedir $dh;
+    };
+    foreach my $dir2 (@subdirs)
+    {
+      my $fn = File::Spec->catfile($dir2, 'config.pl');
+      next unless -r $fn;
+      my $config = eval { do $fn };
+      next unless ref($config) eq 'HASH';
+      push @config_list, $config;
+    }
+  }
+  
+  @config_list;
 }
 
 1;

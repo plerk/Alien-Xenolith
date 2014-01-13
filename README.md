@@ -16,6 +16,12 @@ Identifier for the current Perl which can be used as a component of a directory 
 
 List of directories to search for Xenolith configurations.
 
+## install\_path
+
+    my $dir = Alien::Foo->install_path;
+
+Return the first directory in the search path that is writable.
+
 # AUTHOR
 
 Graham Ollis <plicease@cpan.org>
