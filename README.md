@@ -19,11 +19,40 @@ Create a new instance of an alien object.
 #### filter
 
     use Sort::Versions qw( versioncmp );
-    my $alien = Alien::Foo->new( filter => sub { versioncmp($_[0]->version, '2.0.2') } );
+    my $alien = Alien::Foo->new(
+      # only use libfoo with version 2.02 or better
+      filter => sub { versioncmp($_[0]->version, '2.0.2') },
+    );
 
 Code reference that can be used to filter possible alien instances.
 The alien instance will be passed in as the first argument and this
 code reference will be expected to return 1 if it is okay.
+
+#### cmp
+
+    use Sort::Version qw( versioncmp );
+    my $alien = Alien::Foo->new(
+      # use the oldest version available
+      cmp => sub { 0 - versioncmp($_[0]->version, $_[1]->version) },
+    );
+
+Specify a different comparison function for determining the best
+alien instance to use.  If not specified, then [Alien::Xenolith](https://metacpan.org/pod/Alien::Xenolith)
+will compare the version, and then the timestamp of each possible
+instance.
+
+#### config
+
+    my @configs = Alien::Foo->get_configs;
+
+    my $alien = Alien::Foo->new(
+      # just use the first one off the list
+      # even if it is old or stupid or something.
+      config => $configs[0],
+    );
+
+Bypass the Xenolith search path and just specify the configuration
+to use for the alien instance.
 
 ## cflags
 

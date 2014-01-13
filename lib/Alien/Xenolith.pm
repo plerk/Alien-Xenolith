@@ -51,6 +51,19 @@ alien instance to use.  If not specified, then L<Alien::Xenolith>
 will compare the version, and then the timestamp of each possible
 instance.
 
+=head4 config
+
+ my @configs = Alien::Foo->get_configs;
+
+ my $alien = Alien::Foo->new(
+   # just use the first one off the list
+   # even if it is old or stupid or something.
+   config => $configs[0],
+ );
+
+Bypass the Xenolith search path and just specify the configuration
+to use for the alien instance.
+
 =cut
 
 sub new
@@ -61,7 +74,9 @@ sub new
 
   my $config;
 
-  foreach my $try ($class->get_configs)
+  my @configs = $args{config} ? ($args{config}) : ($class->get_configs);
+
+  foreach my $try (@configs)
   {
     $try->{version} = 0 unless defined $try->{version};
 
