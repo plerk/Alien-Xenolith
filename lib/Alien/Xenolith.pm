@@ -29,11 +29,27 @@ Create a new instance of an alien object.
 =head4 filter
 
  use Sort::Versions qw( versioncmp );
- my $alien = Alien::Foo->new( filter => sub { versioncmp($_[0]->version, '2.0.2') } );
+ my $alien = Alien::Foo->new(
+   # only use libfoo with version 2.02 or better
+   filter => sub { versioncmp($_[0]->version, '2.0.2') },
+ );
 
 Code reference that can be used to filter possible alien instances.
 The alien instance will be passed in as the first argument and this
 code reference will be expected to return 1 if it is okay.
+
+=head4 cmp
+
+ use Sort::Version qw( versioncmp );
+ my $alien = Alien::Foo->new(
+   # use the oldest version available
+   cmp => sub { 0 - versioncmp($_[0]->version, $_[1]->version) },
+ );
+
+Specify a different comparison function for determining the best
+alien instance to use.  If not specified, then L<Alien::Xenolith>
+will compare the version, and then the timestamp of each possible
+instance.
 
 =cut
 
@@ -56,8 +72,16 @@ sub new
 
     if(defined $config)
     {
-      my $cmp = Sort::Versions::versioncmp($config->{version}, $try->{version});
-      $cmp = $config->{timestamp} <=> $try->{timestamp} if $cmp == 0;
+      my $cmp;
+      if($args{cmp})
+      {
+        $cmp = $args{cmp}->(bless($config, $class),bless($try, $class));
+      }
+      else
+      {
+        $cmp = Sort::Versions::versioncmp($config->{version}, $try->{version});
+        $cmp = $config->{timestamp} <=> $try->{timestamp} if $cmp == 0;
+      }
       $config = $try if $cmp < 0;
     }
     else

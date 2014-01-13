@@ -2,7 +2,7 @@ use strict;
 use warnings;
 use File::HomeDir::Test;
 use File::HomeDir;
-use Test::More tests => 7;
+use Test::More tests => 8;
 use File::Spec;
 use File::Path qw( mkpath );
 use lib File::Spec->catdir( 'corpus', 'search_path', 'lib' );
@@ -107,6 +107,31 @@ subtest 'class methods' => sub {
 subtest 'filter' => sub {
 
   my $alien = Alien::Foo->new(filter => sub { shift->version ne '1.1.2' });
+
+  is eval { $alien->version }, '1.1.1', 'version = 1.1.1';
+  diag $@ if $@;
+  
+  is eval { $alien->cflags }, '-IFoo', 'cflags = -IFoo';
+  diag $@ if $@;
+
+  is eval { $alien->libs }, '-lm', 'libs = -lm';
+  diag $@ if $@;
+  
+  is eval { $alien->dlls->[0] }, 'foo1.dll', 'dlls = foo1.dll';
+  diag $@ if $@;
+};
+
+subtest 'cmp' => sub {
+
+  require Sort::Versions;
+
+  my $alien = Alien::Foo->new(
+    cmp => sub { 
+      0 - Sort::Versions::versioncmp(
+            $_[0]->version, $_[1]->version
+          )
+    },
+  );
 
   is eval { $alien->version }, '1.1.1', 'version = 1.1.1';
   diag $@ if $@;
