@@ -12,19 +12,34 @@ use Sort::Versions ();
 # ABSTRACT: Smooth interface for external libraries
 # VERSION
 
+=head1 SYNOPSIS
+
+=head1 DESCRIPTION
+
 =head1 METHODS
 
 =head2 new
 
- my $alien = Alien::Foo->new;
+ my $alien = Alien::Foo->new(%args);
 
 Create a new instance of an alien object.
+
+=head3 arguments
+
+=head4 filter
+
+ use Sort::Versions qw( versioncmp );
+ my $alien = Alien::Foo->new( filter => sub { versioncmp($_[0]->version, '2.0.2') } );
+
+Code reference that can be used to filter possible alien instances.
+The alien instance will be passed in as the first argument and this
+code reference will be expected to return 1 if it is okay.
 
 =cut
 
 sub new
 {
-  my($class) = @_;
+  my($class, %args) = @_;
 
   return $class if ref $class;
 
@@ -32,9 +47,15 @@ sub new
 
   foreach my $try ($class->get_configs)
   {
+    $try->{version} = 0 unless defined $try->{version};
+
+    if($args{filter})
+    {
+      next unless $args{filter}->(bless $try, $class);
+    }
+
     if(defined $config)
     {
-      # TODO: when version is not defined short-circut to timestamp
       my $cmp = Sort::Versions::versioncmp($config->{version}, $try->{version});
       $cmp = $config->{timestamp} <=> $try->{timestamp} if $cmp == 0;
       $config = $try if $cmp < 0;

@@ -4,6 +4,9 @@ pod_spelling_system:
   # (regardless of what spell check thinks)
   stopwords:
     - Xenolith
+    - cflags
+    - libs
+    - dlls
 
 pod_coverage:
   # format is "Class#method" or "Class", regex allowed

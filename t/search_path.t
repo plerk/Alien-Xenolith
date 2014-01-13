@@ -2,7 +2,7 @@ use strict;
 use warnings;
 use File::HomeDir::Test;
 use File::HomeDir;
-use Test::More tests => 6;
+use Test::More tests => 7;
 use File::Spec;
 use File::Path qw( mkpath );
 use lib File::Spec->catdir( 'corpus', 'search_path', 'lib' );
@@ -12,6 +12,15 @@ subtest 'prep' => sub {
   plan tests => 2;
   use_ok 'Alien::Foo';
   use_ok 'Alien::Foo::Recipe';
+  
+  my @dirs = map { File::Spec->catdir(split m{/}, $_) } qw( 
+    corpus/search_path/lib/auto/Alien/Foo/E198DB4A-7C80-11E3-AEBD-2AD555543D6A
+    corpus/search_path/lib/auto/Alien/Foo/E0EC54F6-7C80-11E3-B153-29D555543D6A
+    corpus/search_path/lib/auto/Alien/Foo
+  );
+  
+  eval { chmod 0555, $_ if -w $_ } for @dirs;
+  
 };
 
 subtest 'perl identifier is a directory that can be created' => sub {
@@ -93,4 +102,21 @@ subtest 'class methods' => sub {
   is eval { $alien->dlls->[0] }, 'foo2.dll', 'dlls = foo2.dll';
   diag $@ if $@;
   
+};
+
+subtest 'filter' => sub {
+
+  my $alien = Alien::Foo->new(filter => sub { shift->version ne '1.1.2' });
+
+  is eval { $alien->version }, '1.1.1', 'version = 1.1.1';
+  diag $@ if $@;
+  
+  is eval { $alien->cflags }, '-IFoo', 'cflags = -IFoo';
+  diag $@ if $@;
+
+  is eval { $alien->libs }, '-lm', 'libs = -lm';
+  diag $@ if $@;
+  
+  is eval { $alien->dlls->[0] }, 'foo1.dll', 'dlls = foo1.dll';
+  diag $@ if $@;
 };
