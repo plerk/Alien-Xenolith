@@ -14,6 +14,7 @@ use File::Basename qw( basename );
 use Data::Dumper;
 use Config;
 use Text::ParseWords qw( shellwords );
+use Test::Xenolith;
 
 plan skip_all => 'test requires FFI::Raw'
   unless eval q{ use FFI::Raw; 1 };
@@ -109,6 +110,13 @@ subtest 'use ffi raw' => sub {
   diag $@ if $@;
   ok defined $fooish, "found fooish()";
   is $fooish->call(), 42, 'fooish() returns 42';
+};
+
+subtest 'Test::Xenolith' => sub {
+  plan tests => 2;
+  
+  alien_ok 'Alien::Foo';
+  alien_ffi_ok 'fooish';
 };
 
 subtest 'use ffi sweet' => sub {

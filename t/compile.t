@@ -10,6 +10,7 @@ use lib File::Spec->catdir(File::HomeDir->my_home, 'lib');
 use TestLib;
 use Capture::Tiny qw( capture_merged );
 use Config;
+use Test::Xenolith;
 
 plan skip_all => 'test requires ExtUtils::CChecker'
   unless eval q{ use ExtUtils::CChecker; 1 };
@@ -136,6 +137,34 @@ subtest 'inline' => sub {
   
   is eval { Foo::Inline::all_good() }, 1, 'called all_good';
   diag $@ if $@;
+};
+
+subtest 'Test::Xenolith' => sub {
+
+  plan tests => 4;
+
+  alien_ok 'Alien::Foo';
+
+  alien_compile_ok;
+
+  my $out = alien_compile_ok { 
+    source => <<EOF,
+#include <foo.h>
+int
+main(int argc, char *argv[])
+{
+  printf("hello there\\n");
+  if(fooish() != 42)
+    return 1;
+  if(FOO != 42)
+    return 1;
+  return 0;
+}
+EOF
+  }, 'custom compile';
+
+  like $out, qr{hello there}, 'custom output';
+
 };
 
 subtest 'Module::Build' => sub {
