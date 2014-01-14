@@ -239,6 +239,20 @@ Returns the configuration that can be passed into L<Inline>
 sub inline
 {
   my $self = shift->new;
+
+  # MM seems to completely ignore LIBS on MSWin32 with MS Visual C++  
+  if($^O eq 'MSWin32')
+  {
+    require Config;
+    if($Config::Config{cc} =~ /cl(\.exe)?$/)
+    {
+      return (
+        CCFLAGSEX => $self->cflags,
+        LDDLFLAGS => "$Config::Config{lddlflags} " . $self->libs,
+      );
+    }
+  }
+  
   return (
     CCFLAGSEX => $self->cflags,
     LIBS      => $self->libs
