@@ -1,7 +1,7 @@
 package Alien::Foo;
 
-use base qw( Alien::Xenolith );
-
-sub Inline { my %h = __PACKAGE__->inline; \%h }
+use strict;
+use warnings;
+use Alien::Xenolith -base;
 
 1;

@@ -17,7 +17,7 @@ you've created and C<$alien> is an instance of that class.
 This is all that is required to declare that class:
 
  package Alien::Foo;
- use base qw( Alien::Xenolith );
+ use Alien::Xenolith -base;
  1;
 
 =head2 new
@@ -178,13 +178,6 @@ sub dlls { shift->new->{dlls} }
 
 alternately
 
- package Alien::Foo;
- 
- use base qw( Alien::Xenolith );
- sub Inline { my %h = __PACKAGE__->inline; \%h }
- 
- package main;
- 
  use Inline C => with 'Alien::Foo';
  use Inline C => 'DATA';
  
@@ -398,6 +391,32 @@ sub get_configs
   }
   
   @config_list;
+}
+
+sub import
+{
+  my $class = shift;
+  
+  return unless $class eq __PACKAGE__;
+  
+  foreach my $arg (@_)
+  {
+    if($arg eq '-base')
+    {
+      my $caller = caller;
+      no strict 'refs';
+      push @{"$caller\::ISA"}, __PACKAGE__;
+      *{"$caller\::Inline"} = sub {
+        my %h = $caller->inline;
+        \%h;
+      };
+    }
+    else
+    {
+      require 'Carp';
+      Carp::croak("unknown option $arg");
+    }
+  };
 }
 
 1;

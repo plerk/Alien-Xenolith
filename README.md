@@ -13,7 +13,7 @@ you've created and `$alien` is an instance of that class.
 This is all that is required to declare that class:
 
     package Alien::Foo;
-    use base qw( Alien::Xenolith );
+    use Alien::Xenolith -base;
     1;
 
 ## new
@@ -97,13 +97,6 @@ in which case the latest version will be used.
 
 alternately
 
-    package Alien::Foo;
-    
-    use base qw( Alien::Xenolith );
-    sub Inline { my %h = __PACKAGE__->inline; \%h }
-    
-    package main;
-    
     use Inline C => with 'Alien::Foo';
     use Inline C => 'DATA';
     
