@@ -67,6 +67,18 @@ from L<Alien::Base> mainly in that:
 
 =over 4
 
+=item supports upgrades
+
+With L<Alien::Xenolith>, the recipe for fetching, building
+and installing your alien library is separate from the Alien
+module itself, and also separate from your installer 
+(unlike L<Alien::Base> where the fetch, build and install
+are an integral part of L<Alien::Base::ModuleBuild>).
+
+This means that your XS module can request a more recent
+version of the library if it is available, or as an end user 
+you can install a more recent version on the command line.
+
 =item supports multiple platforms
 
 Out of the box, L<Alien::Xenolith> is designed to create

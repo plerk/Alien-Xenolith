@@ -61,6 +61,18 @@ Xenolith is intended as an alternative toolkit for creating
 Alien distributions and modules.  It differentiates itself
 from [Alien::Base](https://metacpan.org/pod/Alien::Base) mainly in that:
 
+- supports upgrades
+
+    With [Alien::Xenolith](https://metacpan.org/pod/Alien::Xenolith), the recipe for fetching, building
+    and installing your alien library is separate from the Alien
+    module itself, and also separate from your installer 
+    (unlike [Alien::Base](https://metacpan.org/pod/Alien::Base) where the fetch, build and install
+    are an integral part of [Alien::Base::ModuleBuild](https://metacpan.org/pod/Alien::Base::ModuleBuild)).
+
+    This means that your XS module can request a more recent
+    version of the library if it is available, or as an end user 
+    you can install a more recent version on the command line.
+
 - supports multiple platforms
 
     Out of the box, [Alien::Xenolith](https://metacpan.org/pod/Alien::Xenolith) is designed to create
