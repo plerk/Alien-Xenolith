@@ -303,9 +303,10 @@ sub install_path
   require File::Path;
 
   foreach my $dir ($class->search_path)
-  {    
+  {
+    my $fn = File::Spec->catfile($dir, '_readonly');
+    next if -e $fn;
     File::Path::mkpath($dir, 0, 0755);
-    # TODO: Cygwin may not get this right...
     return $dir if -d $dir && -w $dir;
   }
   

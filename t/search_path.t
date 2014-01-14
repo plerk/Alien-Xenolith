@@ -21,6 +21,12 @@ subtest 'prep' => sub {
   
   eval { chmod 0555, $_ if -w $_ } for @dirs;
   
+  if($^O =~ /^(MSWin32|cygwin)$/)
+  {
+    open(FP, '>', File::Spec->catfile( qw( corpus search_path lib auto Alien Foo _readonly )));
+    close FP;
+  }
+  
 };
 
 subtest 'perl identifier is a directory that can be created' => sub {
