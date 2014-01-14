@@ -165,7 +165,12 @@ in which case the latest version will be used.
 
 =cut
 
-sub dlls { shift->new->{dlls} }
+sub dlls
+{
+  my $self = shift->new;
+  my @dlls = map { $self->_process($_) } ref $self->{dlls} ? (@{ $self->{dlls} }) : ($self->{dlls});
+  wantarray ? @dlls : $dlls[0];
+}
 
 =head2 inline
 

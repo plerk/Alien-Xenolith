@@ -86,7 +86,7 @@ subtest 'fetch latest' => sub {
   is eval { $alien->libs }, '-lm', 'libs = -lm';
   diag $@ if $@;
   
-  is eval { $alien->dlls->[0] }, 'foo2.dll', 'dlls = foo2.dll';
+  is eval { ($alien->dlls)[0] }, 'foo2.dll', 'dlls = foo2.dll';
   diag $@ if $@;
   
   like eval { $alien->timestamp }, qr{^[1-9][0-9]*$}, 'timestamp';
@@ -107,7 +107,7 @@ subtest 'class methods' => sub {
   is eval { $alien->libs }, '-lm', 'libs = -lm';
   diag $@ if $@;
   
-  is eval { $alien->dlls->[0] }, 'foo2.dll', 'dlls = foo2.dll';
+  is eval { ($alien->dlls)[0] }, 'foo2.dll', 'dlls = foo2.dll';
   diag $@ if $@;
   
 };
@@ -125,7 +125,7 @@ subtest 'filter' => sub {
   is eval { $alien->libs }, '-lm', 'libs = -lm';
   diag $@ if $@;
   
-  is eval { $alien->dlls->[0] }, 'foo1.dll', 'dlls = foo1.dll';
+  is eval { ($alien->dlls)[0] }, 'foo1.dll', 'dlls = foo1.dll';
   diag $@ if $@;
 };
 
@@ -150,7 +150,7 @@ subtest 'cmp' => sub {
   is eval { $alien->libs }, '-lm', 'libs = -lm';
   diag $@ if $@;
   
-  is eval { $alien->dlls->[0] }, 'foo1.dll', 'dlls = foo1.dll';
+  is eval { ($alien->dlls)[0] }, 'foo1.dll', 'dlls = foo1.dll';
   diag $@ if $@;
 };
 
@@ -176,6 +176,6 @@ subtest 'config' => sub {
   is eval { $alien->libs }, '-lxml2', 'libs = -lxml2';
   diag $@ if $@;
   
-  is eval { $alien->dlls->[0] }, 'foo3.dll', 'dlls = foo3.dll';
+  is eval { ($alien->dlls)[0] }, 'foo3.dll', 'dlls = foo3.dll';
   diag $@ if $@;
 };
