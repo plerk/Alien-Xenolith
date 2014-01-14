@@ -8,10 +8,57 @@ use warnings;
 
 =head1 SYNOPSIS
 
+As an alien developer:
+
  package Alien::Foo;
  
  use Alien::Xenolith -base;
  
+(see L<Alien::Xenolith::Recipe> for information on writing the recipe
+to go along with this)
+
+As an alien user (L<Module::Build>):
+
+ use Module::Build;
+ use Alien::Foo;
+ Module::Build->new(
+   ...
+     configure_requires   => {
+       "Module::Build" => "0.3601",
+       "Alien::Foo"    => 0,
+     },
+   Alien::Foo->module_build,
+ );
+
+As an alien user (L<ExtUtils::MakeMaker>):
+ 
+ use ExtUtils::MakeMaker 6.30;
+ use Alien::Foo;
+ WriteMakefile(
+   ...
+   CONFIGURE_REQUIRES => {
+     "ExtUtils::MakeMaker" => "6.30",
+     "Alien::Foo"          => 0,
+   },
+   Alien::Foo->make_maker,
+ );
+
+As an alien user (L<FFI::Raw>):
+
+ use FFI::Raw;
+ use Alien::Foo; 
+ my $foo = FFI::Raw->new(
+   scalar Alien::Foo->dlls, 'foo', FFI::Raw::int(),
+ );
+ $foo->();
+
+As an alien user (L<Inline::C>):
+
+ use Alien::Foo;
+ use Inline with => 'Alien::Foo';
+ use Inline C => 'DATA';
+ Inline->init;
+
 =head1 DESCRIPTION
 
 Xenolith is intended as an alternative toolkit for creating
@@ -42,6 +89,9 @@ Provides static libraries for when you are building a XS or L<Inline>
 module.  This is important, because if you link your extension against
 a dynamic library (.so or .dll) then upgrading the Alien module may
 break existing XS modules.
+
+This also means that you don't have to pull in any Alien junk at 
+runtime for XS modules.
 
 =item dynamic linking for FFI
 

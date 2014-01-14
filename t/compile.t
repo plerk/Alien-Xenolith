@@ -38,7 +38,6 @@ subtest prep => sub {
   
   note scalar capture_merged {
     my $obj = eval { $b->compile( source => File::Spec->catfile($base, qw( src foo.c )) ) };
-    # TODO: portability $Config{ar} = lib on native M$
     
     mkdir(File::Spec->catdir($base, qw( lib )));
 

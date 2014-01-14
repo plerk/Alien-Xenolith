@@ -9,6 +9,7 @@ pod_spelling_system:
     - dlls
     - dll
     - FFI
+    - TODO
 
 pod_coverage:
   # format is "Class#method" or "Class", regex allowed

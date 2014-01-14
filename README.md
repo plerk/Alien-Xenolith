@@ -4,9 +4,56 @@ Smooth interface for external libraries
 
 # SYNOPSIS
 
+As an alien developer:
+
     package Alien::Foo;
     
     use Alien::Xenolith -base;
+
+(see [Alien::Xenolith::Recipe](https://metacpan.org/pod/Alien::Xenolith::Recipe) for information on writing the recipe
+to go along with this)
+
+As an alien user ([Module::Build](https://metacpan.org/pod/Module::Build)):
+
+    use Module::Build;
+    use Alien::Foo;
+    Module::Build->new(
+      ...
+        configure_requires   => {
+          "Module::Build" => "0.3601",
+          "Alien::Foo"    => 0,
+        },
+      Alien::Foo->module_build,
+    );
+
+As an alien user ([ExtUtils::MakeMaker](https://metacpan.org/pod/ExtUtils::MakeMaker)):
+
+    use ExtUtils::MakeMaker 6.30;
+    use Alien::Foo;
+    WriteMakefile(
+      ...
+      CONFIGURE_REQUIRES => {
+        "ExtUtils::MakeMaker" => "6.30",
+        "Alien::Foo"          => 0,
+      },
+      Alien::Foo->make_maker,
+    );
+
+As an alien user ([FFI::Raw](https://metacpan.org/pod/FFI::Raw)):
+
+    use FFI::Raw;
+    use Alien::Foo; 
+    my $foo = FFI::Raw->new(
+      scalar Alien::Foo->dlls, 'foo', FFI::Raw::int(),
+    );
+    $foo->();
+
+As an alien user ([Inline::C](https://metacpan.org/pod/Inline::C)):
+
+    use Alien::Foo;
+    use Inline with => 'Alien::Foo';
+    use Inline C => 'DATA';
+    Inline->init;
 
 # DESCRIPTION
 
@@ -36,6 +83,9 @@ from [Alien::Base](https://metacpan.org/pod/Alien::Base) mainly in that:
     module.  This is important, because if you link your extension against
     a dynamic library (.so or .dll) then upgrading the Alien module may
     break existing XS modules.
+
+    This also means that you don't have to pull in any Alien junk at 
+    runtime for XS modules.
 
 - dynamic linking for FFI
 
