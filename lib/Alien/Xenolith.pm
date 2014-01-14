@@ -117,7 +117,19 @@ in which case the latest version will be used.
 
 =cut
 
-sub cflags { shift->new->{cflags} }
+sub _process
+{
+  my($self, $str) = @_;
+  $str =~ s{%d}{$self->{root}}g;
+  $str =~ s{%%}{%}g;
+  $str;
+}
+
+sub cflags
+{
+  my $self = shift->new;
+  $self->_process($self->{cflags});
+}
 
 =head2 libs
 
@@ -129,7 +141,11 @@ in which case the latest version will be used.
 
 =cut
 
-sub libs { shift->new->{libs} }
+sub libs
+{
+  my $self = shift->new;
+  $self->_process($self->{libs});
+}
 
 =head2 dlls
 
@@ -164,6 +180,36 @@ in which case the latest version will be used.
 =cut
 
 sub version { shift->new->{version} }
+
+
+=head2 test_compiler
+
+ my $ok = $alien->test_compiler( $c_source );
+ my $ok = Alien::Foo->test_compiler( $c_source );
+
+Test compiling and running with the alien instance.
+
+=cut
+
+sub test_compiler
+{
+  my $self = shift->new;
+  my %args = @_;
+  
+  $args{quiet} = 0
+    unless defined $args{quiet};
+  
+  require ExtUtils::CChecker;
+  require Text::ParseWords;
+  my $cc = ExtUtils::CChecker->new( quiet => $args{quiet} );
+  $cc->push_extra_compiler_flags(Text::ParseWords::shellwords($self->cflags));
+  $cc->push_extra_linker_flags(Text::ParseWords::shellwords($self->libs));
+  
+  $args{source} = 'int main(int argc, char *argv[]) { return 0; }'
+    unless defined $args{source};
+  
+  $cc->try_compile_run(%args);
+}
 
 =head2 perl_id
 
@@ -298,6 +344,8 @@ sub get_configs
       next unless -r $fn;
       my $config = eval { do $fn };
       next unless ref($config) eq 'HASH';
+      require File::Basename;
+      $config->{root} = File::Basename::dirname($fn);
       push @config_list, $config;
     }
   }
