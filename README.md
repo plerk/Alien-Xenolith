@@ -86,8 +86,8 @@ from [Alien::Base](https://metacpan.org/pod/Alien::Base) mainly in that:
 
 - supports multiple intents
 
-    Designed from the get-go to work with XS, [Inline](https://metacpan.org/pod/Inline), [FFI::Raw](https://metacpan.org/pod/FFI::Raw)
-    and [FFI::Sweet](https://metacpan.org/pod/FFI::Sweet).
+    Designed from the get-go to work with XS, [ExtUtils::MakeMaker](https://metacpan.org/pod/ExtUtils::MakeMaker),
+    [Module::Build](https://metacpan.org/pod/Module::Build), [Dist::Zilla](https://metacpan.org/pod/Dist::Zilla), [Inline](https://metacpan.org/pod/Inline), [FFI::Raw](https://metacpan.org/pod/FFI::Raw) and [FFI::Sweet](https://metacpan.org/pod/FFI::Sweet).
 
 - static linking for XS
 

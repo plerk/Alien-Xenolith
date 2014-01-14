@@ -92,8 +92,8 @@ that)
 
 =item supports multiple intents
 
-Designed from the get-go to work with XS, L<Inline>, L<FFI::Raw>
-and L<FFI::Sweet>.
+Designed from the get-go to work with XS, L<ExtUtils::MakeMaker>,
+L<Module::Build>, L<Dist::Zilla>, L<Inline>, L<FFI::Raw> and L<FFI::Sweet>.
 
 =item static linking for XS
 
