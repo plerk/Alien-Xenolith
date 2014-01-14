@@ -143,6 +143,20 @@ alternately
 
 Returns the configuration that can be passed into [Inline](https://metacpan.org/pod/Inline)
 
+## make\_maker
+
+    my @args = Alien::Foo->make_maker;
+    my @args = $alien->make_maker;
+
+Return arguments which can be used by [ExtUtils::MakeMaker](https://metacpan.org/pod/ExtUtils::MakeMaker).
+
+## module\_build
+
+    my @args = Alien::Foo->module_build;
+    my @args = $alien->module_build;
+
+Return arguments which can be used by [Module::Build](https://metacpan.org/pod/Module::Build).
+
 ## timestamp
 
     my $timestamp = $alien->timestamp;
