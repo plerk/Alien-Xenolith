@@ -274,6 +274,18 @@ sub make_maker
   
   require Config;
   
+  if($^O eq 'MSWin32')
+  {
+    require Config;
+    if($Config::Config{cc} =~ /cl(\.exe)?$/)
+    {
+      return (
+        CCFLAGS   => "$Config::Config{ccflags} " . $self->cflags,
+        LDDLFLAGS => "$Config::Config{lddlflags} " . $self->libs,
+      );
+    }
+  }
+  
   return (
     CCFLAGS => "$Config::Config{ccflags} " . $self->cflags,
     LIBS    => $self->libs,
