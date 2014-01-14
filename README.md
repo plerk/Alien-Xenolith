@@ -22,6 +22,9 @@ from [Alien::Base](https://metacpan.org/pod/Alien::Base) mainly in that:
     it is not possible without significant effort and detailed
     subclassing. 
 
+    (If your platform is not supported, please coordinate with me to fix
+    that)
+
 - supports multiple intents
 
     Designed from the get-go to work with XS, [Inline](https://metacpan.org/pod/Inline), [FFI::Raw](https://metacpan.org/pod/FFI::Raw)

@@ -28,6 +28,9 @@ with L<Alien::Base>, this may be possible, in my experience
 it is not possible without significant effort and detailed
 subclassing. 
 
+(If your platform is not supported, please coordinate with me to fix
+that)
+
 =item supports multiple intents
 
 Designed from the get-go to work with XS, L<Inline>, L<FFI::Raw>
