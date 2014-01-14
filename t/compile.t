@@ -154,15 +154,13 @@ subtest 'Module::Build' => sub {
   note scalar capture_merged {
     system $^X, 'Build.PL';
   };
-  is $?, 0, 'Build.PL';  
+  is $?, 0, "$^X Build.PL";
   
   note scalar capture_merged {
     system $^X, 'Build';
   };
   is $?, 0, 'Build';
 
-  $DB::single = 1;
-  
   note scalar capture_merged {
     system $^X, 'Build', 'test';
   };
@@ -170,6 +168,45 @@ subtest 'Module::Build' => sub {
   
   chdir(File::Spec->rootdir);
   
+};
+
+subtest 'ExtUtils::MakeMaker' => sub {
+
+  plan skip_all => 'requires Module::Which'
+    unless eval q{ use Module::Which; 1 };
+
+  plan skip_all => 'requires ExtUtils::MakeMaker 6.30'
+    unless eval q{ use ExtUtils::MakeMaker 6.30; 1 };
+
+  plan skip_all => 'requires make'
+    unless Module::Which::which($Config{make});
+
+  plan tests => 3;
+
+  local $ENV{PERL5LIB} = join($Config{path_sep}, 
+    File::Spec->rel2abs(File::Spec->catdir($FindBin::Bin, File::Spec->updir, 'lib')),
+    File::Spec->catdir(File::HomeDir->my_home, 'lib'),
+    ($ENV{PERL5LIB} ? ($ENV{PERL5LIB}) : ()),
+  );
+
+  chdir(File::Spec->catdir(File::HomeDir->my_home, 'dev', 'Foo-XS-MM'));
+
+  note scalar capture_merged {
+    system $^X, 'Makefile.PL';
+  };
+  is $?, 0, "$^X Makefile.PL";
+
+  note scalar capture_merged {
+    system $Config{make};
+  };
+  is $?, 0, "$Config{make}";
+  
+  note scalar capture_merged {
+    system $Config{make}, 'test';
+  };
+  is $?, 0, "$Config{make} test";
+
+  chdir(File::Spec->rootdir);
 };
 
 done_testing;

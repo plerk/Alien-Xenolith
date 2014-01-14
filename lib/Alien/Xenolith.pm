@@ -259,6 +259,27 @@ sub inline
   );
 }
 
+=head2 make_maker
+
+ my @args = Alien::Foo->make_maker;
+ my @args = $alien->make_maker;
+
+Return arguments which can be used by L<ExtUtils::MakeMaker>.
+
+=cut
+
+sub make_maker
+{
+  my $self = shift->new;
+  
+  require Config;
+  
+  return (
+    CCFLAGS => "$Config::Config{ccflags} " . $self->cflags,
+    LIBS    => $self->libs,
+  );
+}
+
 =head2 timestamp
 
  my $timestamp = $alien->timestamp;
