@@ -1,0 +1,8 @@
+/Build
+/MYMETA.json
+/MYMETA.yml
+/_build
+/blib
+/lib/Foo/XS.c
+/lib/Foo/XS.o
+/MANIFEST.SKIP.bak

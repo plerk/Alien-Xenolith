@@ -139,4 +139,37 @@ subtest 'inline' => sub {
   diag $@ if $@;
 };
 
+subtest 'Module::Build' => sub {
+
+  plan tests => 3;
+
+  local $ENV{PERL5LIB} = join($Config{path_sep}, 
+    File::Spec->rel2abs(File::Spec->catdir($FindBin::Bin, File::Spec->updir, 'lib')),
+    File::Spec->catdir(File::HomeDir->my_home, 'lib'),
+    ($ENV{PERL5LIB} ? ($ENV{PERL5LIB}) : ()),
+  );
+  
+  chdir(File::Spec->catdir(File::HomeDir->my_home, 'dev', 'Foo-XS-MB'));
+
+  note scalar capture_merged {
+    system $^X, 'Build.PL';
+  };
+  is $?, 0, 'Build.PL';  
+  
+  note scalar capture_merged {
+    system $^X, 'Build';
+  };
+  is $?, 0, 'Build';
+
+  $DB::single = 1;
+  
+  note scalar capture_merged {
+    system $^X, 'Build', 'test';
+  };
+  is $?, 0, 'Build test';
+  
+  chdir(File::Spec->rootdir);
+  
+};
+
 done_testing;
