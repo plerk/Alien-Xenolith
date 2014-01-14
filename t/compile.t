@@ -23,10 +23,10 @@ plan skip_all => 'test requires c compiler'
     };
     $ok;
   };
-plan skip_all => 'TODO: test doesn\'t work with MS Visual C++'
-  if $Config{ar} =~ /^lib(\.exe)?$/;
 
 my $home = File::HomeDir->my_home;
+
+my $lib_name;
 
 subtest prep => sub {
   plan tests => 1;
@@ -41,19 +41,34 @@ subtest prep => sub {
     # TODO: portability $Config{ar} = lib on native M$
     
     mkdir(File::Spec->catdir($base, qw( lib )));
+
+    my @cmd;
+
+    if($^O eq 'MSWin32' && $Config{ar} =~ /^lib(\.exe)?$/)
+    {
+      $lib_name = 'foo.lib';
+      my $fn = File::Spec->catfile($base, qw( lib foo.lib ));
+      $fn =~ s{\\}{/}g;
+      @cmd = ('lib', $obj, "/OUT:$fn");
+      print "@cmd\n";
+      system @cmd;
+    }
+    else
+    {
+      $lib_name = 'libfoo.a';
+      @cmd = ('ar', 'rcs', File::Spec->catfile($base, qw( lib libfoo.a )), $obj);
+      print "@cmd\n";
+      system @cmd;
     
-    my @cmd = ('ar', 'rcs', File::Spec->catfile($base, qw( lib libfoo.a )), $obj);
-    print "@cmd\n";
-    system @cmd;
-    
-    @cmd = ('ranlib', File::Spec->catfile($base, qw( lib libfoo.a )));
-    print "@cmd\n";
-    system @cmd;
+      @cmd = ('ranlib', File::Spec->catfile($base, qw( lib libfoo.a )));
+      print "@cmd\n";
+      system @cmd;
+    };
   };
   
 };
 
-unless(-r File::Spec->catfile($home, qw( lib auto Alien Foo E198DB4A-7C80-11E3-AEBD-2AD555543D6A lib libfoo.a )))
+unless(defined $lib_name && -r File::Spec->catfile($home, qw( lib auto Alien Foo E198DB4A-7C80-11E3-AEBD-2AD555543D6A lib ), $lib_name))
 {
   diag "unable to create libfoo.a (compiler may not be available, or I don't know how to compile)";
   done_testing;

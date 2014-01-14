@@ -1,6 +1,7 @@
 {
   cflags    => "-I%d/include -DFOO=42",
-  libs      => "-L%d/lib -lfoo",
+  # Question: can/should this transformation happen automatically in Alien::Xenomorph
+  libs      => ($^O ne 'MSWin32' && $Config::Config{cc} ? "-L%d/lib -lfoo" : "-LIBPATH:%d/lib foo.lib"),
   version   => '1.00',
   timestamp => 123456789,
 }

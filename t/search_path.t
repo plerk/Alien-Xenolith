@@ -25,8 +25,13 @@ subtest 'prep' => sub {
   # but it ignores it.  At least in XP and better.
   if($^O =~ /^(MSWin32|cygwin)$/)
   {
-    open(FP, '>', File::Spec->catfile( qw( corpus search_path lib auto Alien Foo _readonly )));
+    our $rofn = File::Spec->catfile( qw( corpus search_path lib auto Alien Foo _readonly ));
+    open FP, '>', $rofn;
     close FP;
+    END {
+      note "unlink $rofn";
+      unlink $rofn;
+    }
   }
   
 };
