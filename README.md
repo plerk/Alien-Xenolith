@@ -8,6 +8,14 @@ Smooth interface for external libraries
 
 # METHODS
 
+For the usage examples, `Alien::Foo` is a class / module that
+you've created and `$alien` is an instance of that class.
+This is all that is required to declare that class:
+
+    package Alien::Foo;
+    use base qw( Alien::Xenolith );
+    1;
+
 ## new
 
     my $alien = Alien::Foo->new(%args);
@@ -77,6 +85,33 @@ in which case the latest version will be used.
 
 Returns the dlls for with the given alien instance.  Can be called as a class method,
 in which case the latest version will be used.
+
+## inline
+
+    use Inline C => 'DATA' => $alien->inline;
+    use Inline C => 'DATA' => Alien::Foo->inline;
+    
+    __DATA__
+    __C__
+    ...
+
+alternately
+
+    package Alien::Foo;
+    
+    use base qw( Alien::Xenolith );
+    sub Inline { my %h = __PACKAGE__->inline; \%h }
+    
+    package main;
+    
+    use Inline C => with 'Alien::Foo';
+    use Inline C => 'DATA';
+    
+    __DATA__
+    __C__
+    ...
+
+Returns the configuration that can be passed into [Inline](https://metacpan.org/pod/Inline)
 
 ## timestamp
 

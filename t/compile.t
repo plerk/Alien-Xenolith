@@ -55,7 +55,7 @@ subtest prep => sub {
 
 unless(-r File::Spec->catfile($home, qw( lib auto Alien Foo E198DB4A-7C80-11E3-AEBD-2AD555543D6A lib libfoo.a )))
 {
-  note "failed to create libfoo.a, skipping the rest of this test";
+  diag "unable to create libfoo.a (compiler may not be available, or I don't know how to compile)";
   done_testing;
   exit;
 }
@@ -105,6 +105,23 @@ EOF
   
   ok $ok, 'test_compiler with custom c source';
   like $out, qr{some output}, 'output matches';
+};
+
+subtest 'inline' => sub {
+  plan skip_all => 'test requires Inline::C'
+    unless eval q{ use Inline::C (); 1 };
+  plan tests => 2;
+
+  my %config = %{ Alien::Foo->Inline };
+  foreach my $key (sort keys %config)
+  {
+    note "$key=$config{$key}";
+  }
+  
+  use_ok 'Foo::Inline';
+  
+  is eval { Foo::Inline::all_good() }, 1, 'called all_good';
+  diag $@ if $@;
 };
 
 done_testing;
