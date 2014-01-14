@@ -130,6 +130,7 @@ sub _process
   my($self, $str) = @_;
   $str =~ s{%d}{$self->{root}}g;
   $str =~ s{%%}{%}g;
+  $str =~ s{\\}{/}g if $^O eq 'MSWin32'; # Winblows is funny about \ and /
   $str;
 }
 
