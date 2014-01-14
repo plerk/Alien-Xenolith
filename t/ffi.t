@@ -12,6 +12,8 @@ use Capture::Tiny qw( capture_merged );
 use File::Copy qw( cp );
 use File::Basename qw( basename );
 use Data::Dumper;
+use Config;
+use Text::ParseWords qw( shellwords );
 
 plan skip_all => 'test requires FFI::Raw'
   unless eval q{ use FFI::Raw; 1 };
@@ -39,7 +41,20 @@ subtest prep => sub {
   note scalar capture_merged {
     eval {
       my $obj = $b->compile( source => File::Spec->catfile($base, qw( src foo.c )) );
-      my $lib = $b->link( objects => $obj );
+      my $lib;
+      
+      if($^O eq 'MSWin32')
+      {
+        $lib = File::Spec->catfile($base, qw( src foo.dll ));
+        my $lddlflags = $Config{lddlflags};
+        $lddlflags =~ s{\\}{/}g;
+        system $Config{cc}, shellwords($lddlflags), -o => $lib, "-Wl,--export-all-symbols", $obj;
+        die if $?;
+      }
+      else
+      {
+        $lib = $b->link( objects => $obj );
+      }
     
       mkdir(File::Spec->catdir($base, qw( dll )));
     
