@@ -280,6 +280,25 @@ sub make_maker
   );
 }
 
+=head2 module_build
+
+ my @args = Alien::Foo->module_build;
+ my @args = $alien->module_build;
+
+Return arguments which can be used by L<Module::Build>.
+
+=cut
+
+sub module_build
+{
+  my $self = shift->new;
+  
+  return (
+    extra_compiler_flags => $self->cflags,
+    extra_linker_flags   => $self->libs,
+  );
+}
+
 =head2 timestamp
 
  my $timestamp = $alien->timestamp;

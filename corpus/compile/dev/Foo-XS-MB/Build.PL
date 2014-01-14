@@ -13,6 +13,5 @@ Module::Build->new(
   dist_version         => '1.00',
   license              => "perl",
   module_name          => "Foo::XS",
-  extra_compiler_flags => Alien::Foo->cflags,
-  extra_linker_flags   => Alien::Foo->libs,
+  Alien::Foo->module_build,
 )->create_build_script;
