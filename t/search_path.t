@@ -21,6 +21,8 @@ subtest 'prep' => sub {
   
   eval { chmod 0555, $_ if -w $_ } for @dirs;
   
+  # windows is funny... it has a read only attribute for folders,
+  # but it ignores it.  At least in XP and better.
   if($^O =~ /^(MSWin32|cygwin)$/)
   {
     open(FP, '>', File::Spec->catfile( qw( corpus search_path lib auto Alien Foo _readonly )));
