@@ -8,7 +8,45 @@ use warnings;
 
 =head1 SYNOPSIS
 
+ package Alien::Foo;
+ 
+ use Alien::Xenolith -base;
+ 
 =head1 DESCRIPTION
+
+Xenolith is intended as an alternative toolkit for creating
+Alien distributions and modules.  It differentiates itself
+from L<Alien::Base> mainly in that:
+
+=over 4
+
+=item supports multiple platforms
+
+Out of the box, L<Alien::Xenolith> is designed to create
+Alien distributions for Unix, Windows and cygwin.  Although
+with L<Alien::Base>, this may be possible, in my experience
+it is not possible without significant effort and detailed
+subclassing. 
+
+=item supports multiple intents
+
+Designed from the get-go to work with XS, L<Inline>, L<FFI::Raw>
+and L<FFI::Sweet>.
+
+=item static linking for XS
+
+Provides static libraries for when you are building a XS or L<Inline>
+module.  This is important, because if you link your extension against
+a dynamic library (.so or .dll) then upgrading the Alien module may
+break existing XS modules.
+
+=item dynamic linking for FFI
+
+Provides the full path to the dynamic library (.so or .dll), which can
+be provided directly to L<FFI::Raw> or L<FFI::Sweet>.  If possible it
+will do this without aid of a compiler.
+
+=back
 
 =head1 METHODS
 

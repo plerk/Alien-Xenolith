@@ -4,7 +4,41 @@ Smooth interface for external libraries
 
 # SYNOPSIS
 
+    package Alien::Foo;
+    
+    use Alien::Xenolith -base;
+
 # DESCRIPTION
+
+Xenolith is intended as an alternative toolkit for creating
+Alien distributions and modules.  It differentiates itself
+from [Alien::Base](https://metacpan.org/pod/Alien::Base) mainly in that:
+
+- supports multiple platforms
+
+    Out of the box, [Alien::Xenolith](https://metacpan.org/pod/Alien::Xenolith) is designed to create
+    Alien distributions for Unix, Windows and cygwin.  Although
+    with [Alien::Base](https://metacpan.org/pod/Alien::Base), this may be possible, in my experience
+    it is not possible without significant effort and detailed
+    subclassing. 
+
+- supports multiple intents
+
+    Designed from the get-go to work with XS, [Inline](https://metacpan.org/pod/Inline), [FFI::Raw](https://metacpan.org/pod/FFI::Raw)
+    and [FFI::Sweet](https://metacpan.org/pod/FFI::Sweet).
+
+- static linking for XS
+
+    Provides static libraries for when you are building a XS or [Inline](https://metacpan.org/pod/Inline)
+    module.  This is important, because if you link your extension against
+    a dynamic library (.so or .dll) then upgrading the Alien module may
+    break existing XS modules.
+
+- dynamic linking for FFI
+
+    Provides the full path to the dynamic library (.so or .dll), which can
+    be provided directly to [FFI::Raw](https://metacpan.org/pod/FFI::Raw) or [FFI::Sweet](https://metacpan.org/pod/FFI::Sweet).  If possible it
+    will do this without aid of a compiler.
 
 # METHODS
 
