@@ -92,6 +92,13 @@ Returns the timestamp for the given alien instance.
 Returns the version of the given alien instance.  Can be called as a class method,
 in which case the latest version will be used.
 
+## test\_compiler
+
+    my $ok = $alien->test_compiler( $c_source );
+    my $ok = Alien::Foo->test_compiler( $c_source );
+
+Test compiling and running with the alien instance.
+
 ## perl\_id
 
     my $perl_id = Alien::Xenolith->perl_id;
