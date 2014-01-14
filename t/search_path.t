@@ -29,8 +29,11 @@ subtest 'prep' => sub {
     open FP, '>', $rofn;
     close FP;
     END {
-      note "unlink $rofn";
-      unlink $rofn;
+      if(defined $rofn)
+      {
+        note "unlink $rofn";
+        unlink $rofn;
+      }
     }
   }
   
