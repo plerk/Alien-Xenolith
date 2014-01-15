@@ -25,7 +25,7 @@ our @EXPORT = qw( alien_ok alien_compile_ok alien_ffi_ok );
 
  alien_ok $class, $args, $message;
 
-Passes if the give class can be required, instanciated
+Passes if the give class can be required, instantiated
 and is subclass of L<Alien::Xenolith>.
 
 C<$args> are passed into the constructor.

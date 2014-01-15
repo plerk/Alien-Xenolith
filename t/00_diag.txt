@@ -1,7 +1,9 @@
 Capture::Tiny
+Exporter
 File::HomeDir
 File::Path
 File::ShareDir
 Module::Build
 Sort::Versions
+Test::Builder::Module
 Test::More

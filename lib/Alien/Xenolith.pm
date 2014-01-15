@@ -272,8 +272,28 @@ in which case the latest version will be used.
 sub dlls
 {
   my $self = shift->new;
+  $self->_dlls unless defined $self->{dlls};
   my @dlls = map { $self->_process($_) } ref $self->{dlls} ? (@{ $self->{dlls} }) : ($self->{dlls});
   wantarray ? @dlls : $dlls[0];
+}
+
+sub _dlls
+{
+  my($self) = @_;
+  
+  require DynaLoader;
+  my $lib = DynaLoader::dl_findfile($self->libs);
+  
+  if($^O !~ /^(MSWin32|cygwin)$/ || ($^O eq 'cygwin' && $lib =~ /(\.dll|\.so(\..*)?)$/))
+  {
+    $self->{dlls} = [ $lib ];
+    return;
+  }
+  else
+  {
+    $self->{dlls} = [];
+    return;
+  }
 }
 
 =head2 inline
