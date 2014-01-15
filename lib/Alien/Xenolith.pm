@@ -283,6 +283,7 @@ sub _dlls
   
   require DynaLoader;
   my $lib = DynaLoader::dl_findfile($self->libs);
+  # TODO: MSVC: http://msdn.microsoft.com/en-us/library/1xhzskbe.aspx
   
   if($^O !~ /^(MSWin32|cygwin)$/ || ($^O eq 'cygwin' && $lib =~ /(\.dll|\.so(\..*)?)$/))
   {
