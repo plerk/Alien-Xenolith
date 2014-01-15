@@ -2,6 +2,7 @@ use strict;
 use warnings;
 use Test::More;
 use Test::Xenolith;
+use Config;
 
 plan skip_all => 'set TEST_XENOLITH_SYSTEM_LIBARCHIVE_LIBS and TEST_XENOLITH_SYSTEM_LIBARCHIVE_CFLAGS to run this test'
   unless $ENV{TEST_XENOLITH_SYSTEM_LIBARCHIVE_LIBS};
@@ -10,6 +11,11 @@ plan tests => 6;
 
 my $cflags = $ENV{TEST_XENOLITH_SYSTEM_LIBARCHIVE_CFLAGS} || '';
 my $libs   = $ENV{TEST_XENOLITH_SYSTEM_LIBARCHIVE_LIBS};
+
+if($ENV{TEST_XEMOLITH_SYSTEM_LIBARCHIVE_BIN})
+{
+  $ENV{PATH} = join($Config{path_sep}, $ENV{TEST_XEMOLITH_SYSTEM_LIBARCHIVE_BIN}, $ENV{PATH});
+}
 
 alien_ok 'Alien::Xenolith', [ config => { cflags => $cflags, libs => $libs } ];
 

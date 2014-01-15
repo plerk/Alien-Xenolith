@@ -323,6 +323,10 @@ sub _dlls
       }
     }
 
+    # Todo: try Archive::Ar::Libarchive
+    # Todo: try ar.exe
+    # Todo: try lib.exe
+
     $self->{dlls} = [];
     return;
   }
