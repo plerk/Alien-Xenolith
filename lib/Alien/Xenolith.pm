@@ -291,6 +291,38 @@ sub _dlls
   }
   else
   {
+    (my $la = $lib) =~ s/\.a$/\.la/;
+    if(-r $la)
+    {
+      (my $la = $lib) =~ s/\.a$/\.la/;
+      open my $fh, '<', $la;
+      my @list = <$fh>;
+      my($dlname) = grep { s/^dlname='(.*?)'$/$1/ } @list;
+      chomp $dlname;
+      close $fh;
+      
+      require File::Basename;
+      do {
+        my $maybe = File::Spec->catfile(File::Basename::dirname($la), $dlname);
+        if(-r $maybe)
+        {
+          $self->{dlls} = [$maybe];
+          return;
+        }
+      };
+      
+      require Config;
+      foreach my $dir (split $Config::Config{path_sep}, $ENV{PATH})
+      {
+        my $maybe = File::Spec->catfile($dir, File::Basename::basename($dlname));
+        if(-r $maybe)
+        {
+          $self->{dlls} = [$maybe];
+          return;
+        }
+      }
+    }
+
     $self->{dlls} = [];
     return;
   }
