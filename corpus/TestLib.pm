@@ -9,8 +9,9 @@ use File::Copy qw( cp );
 use File::Spec;
 use File::Basename qw( dirname );
 use File::HomeDir;
+use Capture::Tiny qw( capture_merged );
 
-our @EXPORT = qw( template_home_ok );
+our @EXPORT = qw( template_home_ok capture_note run );
 
 die "File::HomeDir::Test must already be loaded"
   unless $INC{'File/HomeDir/Test.pm'};
@@ -91,6 +92,35 @@ sub template_home_ok ($)
       $tb->note($out);
     }
   }
+}
+
+sub capture_note (&)
+{
+  my $sub = shift;
+  my $wantarray = wantarray;
+  my $ret;
+  my @ret;
+  
+  my $out = capture_merged {
+    if($wantarray)
+    { @ret = $sub->() }
+    else
+    { $ret = $sub->() }
+  };
+  
+  my $tb = __PACKAGE__->builder;
+  $tb->note($out);
+  $wantarray ? @ret : $ret;
+}
+
+sub run (@)
+{
+  my @cmd = @_;
+  
+  capture_note {
+    print "@cmd\n";
+    system @cmd;
+  };
 }
 
 1;

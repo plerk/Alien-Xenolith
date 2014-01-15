@@ -274,6 +274,7 @@ sub dlls
 {
   my $self = shift->new;
   $self->_dlls unless defined $self->{dlls};
+  return unless defined $self->{dlls};
   my @dlls = map { $self->_process($_) } ref $self->{dlls} ? (@{ $self->{dlls} }) : ($self->{dlls});
   wantarray ? @dlls : $dlls[0];
 }
@@ -283,55 +284,86 @@ sub _dlls
   my($self) = @_;
   
   require DynaLoader;
-  my $lib = DynaLoader::dl_findfile($self->libs);
-  # TODO: MSVC: http://msdn.microsoft.com/en-us/library/1xhzskbe.aspx
-  
-  if($^O !~ /^(MSWin32|cygwin)$/ || ($^O eq 'cygwin' && $lib =~ /(\.dll|\.so(\..*)?)$/))
+  require Text::ParseWords;
+
+  foreach my $extra('', '.dll')
   {
-    $self->{dlls} = [ $lib ];
-    return;
-  }
-  else
-  {
-    (my $la = $lib) =~ s/\.a$/\.la/;
-    if(-r $la)
+    my @libs = 
+    my $lib = DynaLoader::dl_findfile(
+      map { s/^-l(.*)$/-l$1$extra/; $_ } 
+      Text::ParseWords::shellwords($self->libs),
+    );
+    # TODO: MSVC: http://msdn.microsoft.com/en-us/library/1xhzskbe.aspx
+
+    next unless $lib;
+
+    if($^O !~ /^(MSWin32|cygwin)$/ || ($^O eq 'cygwin' && $lib =~ /(\.dll|\.so(\..*)?)$/))
     {
-      (my $la = $lib) =~ s/\.a$/\.la/;
-      open my $fh, '<', $la;
-      my @list = <$fh>;
-      my($dlname) = grep { s/^dlname='(.*?)'$/$1/ } @list;
-      chomp $dlname;
-      close $fh;
-      
-      require File::Basename;
-      do {
-        my $maybe = File::Spec->catfile(File::Basename::dirname($la), $dlname);
-        if(-r $maybe)
-        {
-          $self->{dlls} = [$maybe];
-          return;
-        }
-      };
-      
-      require Config;
-      foreach my $dir (split $Config::Config{path_sep}, $ENV{PATH})
+      $self->{dlls} = [ $lib ];
+      return;
+    }
+    else
+    {
+      (my $la = $lib) =~ s/(\.dll)?\.a$/\.la/;
+      if(-r $la)
       {
-        my $maybe = File::Spec->catfile($dir, File::Basename::basename($dlname));
-        if(-r $maybe)
-        {
-          $self->{dlls} = [$maybe];
-          return;
-        }
+        open my $fh, '<', $la;
+        my @list = <$fh>;
+        my($dlname) = grep { s/^dlname='(.*?)'$/$1/ } @list;
+        chomp $dlname;
+        close $fh;
+      
+        require File::Basename;
+        do {
+          my $maybe = File::Spec->catfile(File::Basename::dirname($la), $dlname);
+          if(-r $maybe)
+          {
+            $self->{dlls} = [$maybe];
+            return;
+          }
+        };
+      
+        return if $self->_dlls_find_in_path(File::Basename::basename($dlname));
       }
+
+      if(eval { require Archive::Ar::Libarchivex; 1 })
+      {
+        my $ar = Archive::Ar::Libarchive->new($lib);
+        my ($maybe) = grep m/\.dll$/, $ar->list_files;
+        return if $maybe && $self->_dlls_find_in_path($maybe);
+      }
+      
+      require Capture::Tiny;
+      require Config;
+      
+      my($out, $err) = Capture::Tiny::capture(sub {
+        system $Config::Config{ar}, 't', $lib;
+      });
+
+      my($maybe) = grep /\.dll$/, split /\n/, $out;
+      return if $maybe && $self->_dlls_find_in_path($maybe);
+
+      # Todo: try lib.exe
     }
 
-    # Todo: try Archive::Ar::Libarchive
-    # Todo: try ar.exe
-    # Todo: try lib.exe
-
-    $self->{dlls} = [];
-    return;
   }
+}
+
+sub _dlls_find_in_path
+{
+  my($self, $name) = @_;
+  require Config;
+  $DB::single = 1;
+  foreach my $dir (split $Config::Config{path_sep}, $ENV{PATH})
+  {
+    my $maybe = File::Spec->catfile($dir, $name);
+    if(-r $maybe)
+    {
+      $self->{dlls} = [$maybe];
+      return 1;
+    }
+  }
+  return 0;
 }
 
 =head2 inline
