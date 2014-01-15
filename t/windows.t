@@ -20,6 +20,8 @@ plan skip_all => 'test requires ExtUtils::CBuilder'
   unless eval q{ use ExtUtils::CBuilder; 1 };
 plan skip_all => 'test requires compiler'
   unless ExtUtils::CBuilder->new->have_compiler; 
+plan skip_all => 'test requires FFI::Raw'
+  unless eval q{ use FFI::Raw; 1 };
 
 plan tests => 3;
 
