@@ -2,6 +2,7 @@ package Test::Xenolith;
 
 use strict;
 use warnings;
+use 5.008008;
 use base qw( Test::Builder::Module Exporter );
 use Capture::Tiny qw( capture_merged );
 

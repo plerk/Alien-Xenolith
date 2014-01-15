@@ -2,6 +2,7 @@ package Alien::Xenolith;
 
 use strict;
 use warnings;
+use 5.008008;
 
 # ABSTRACT: Smooth interface for external libraries
 # VERSION
