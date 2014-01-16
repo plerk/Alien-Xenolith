@@ -48,8 +48,10 @@ subtest prep => sub {
       $lib = File::Spec->catfile($base, qw( src foo.dll ));
       if($Config{cc} =~ /cl(\.exe)?$/)
       {
+        my $def = File::Spec->catfile($base, qw( src foo.def ));
+        $def =~ s{\\}{/}g;
         $lib =~ s{\\}{/}g;
-        run $Config{cc}, $obj, "/link", "/dll", "/out:$lib";
+        run $Config{cc}, $obj, $def, "/link", "/dll", "/out:$lib";
       }
       else
       {
