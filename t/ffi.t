@@ -39,27 +39,36 @@ subtest prep => sub {
 
   my $base = File::Spec->catfile( $home, qw( lib auto Alien Foo E198DB4A-7C80-11E3-AEBD-2AD555543D6A ));
   
-  note scalar capture_merged {
-    eval {
-      my $obj = $b->compile( source => File::Spec->catfile($base, qw( src foo.c )) );
-      my $lib;
+  eval {
+    my $obj = capture_note { $b->compile( source => File::Spec->catfile($base, qw( src foo.c )) ) };
+    my $lib;
       
-      if($^O eq 'MSWin32')
+    if($^O eq 'MSWin32')
+    {
+      $lib = File::Spec->catfile($base, qw( src foo.dll ));
+      if($Config{cc} =~ /cl(\.exe)?$/)
       {
-        $lib = File::Spec->catfile($base, qw( src foo.dll ));
-        my $lddlflags = $Config{lddlflags};
-        $lddlflags =~ s{\\}{/}g;
-        system $Config{cc}, shellwords($lddlflags), -o => $lib, "-Wl,--export-all-symbols", $obj;
-        die if $?;
+        $lib =~ s{\\}{/}g;
+        run $Config{cc}, $obj, "/link", "/dll", "/out:$lib";
       }
       else
       {
-        $lib = $b->link( objects => $obj );
+        my $lddlflags = $Config{lddlflags};
+        $lddlflags =~ s{\\}{/}g;
+        run $Config{cc}, shellwords($lddlflags), -o => $lib, "-Wl,--export-all-symbols", $obj;
       }
+      die if $?;
+    }
+    else
+    {
+      $lib = capture_note { $b->link( objects => $obj ) };
+    }
     
-      mkdir(File::Spec->catdir($base, qw( dll )));
+    mkdir(File::Spec->catdir($base, qw( dll )));
     
-      my $name = basename $lib;
+    my $name = basename $lib;
+    
+    capture_note {
     
       my $dst = File::Spec->catfile($base, 'dll', $name);
       print "cp $lib => $dst\n";
@@ -77,11 +86,9 @@ subtest prep => sub {
         dlls      => [ "%d/dll/$name" ],
       });
       close $fh;
-
+      
     };
-    
   };
-  
 };
 
 unless(-r File::Spec->catfile($home, qw( lib auto Alien Foo E198DB4A-7C80-11E3-AEBD-2AD555543D6A config.pl )))
