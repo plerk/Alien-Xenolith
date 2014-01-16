@@ -20,8 +20,6 @@ plan skip_all => 'test requires ExtUtils::CBuilder'
   unless eval q{ use ExtUtils::CBuilder; 1 };
 plan skip_all => 'test requires compiler'
   unless ExtUtils::CBuilder->new->have_compiler; 
-plan skip_all => 'test requires FFI::Raw'
-  unless eval q{ use FFI::Raw; 1 };
 
 plan tests => 3;
 
@@ -38,7 +36,7 @@ subtest prep => sub {
   chdir $home;
   
   my $src = File::Spec->catfile('src', 'foo.c');
-  my $obj = eval { capture_note { $cb->compile(source => $src) } };
+  my $obj = eval { capture_note { $cb->compile(source => $src, extra_compiler_flags => '-DFOO_DLL=1') } };
   diag $@ if $@;
   
   ok -r $obj, "compile $src => $obj";
@@ -48,7 +46,8 @@ subtest prep => sub {
 
   if($Config{cc} =~ /cl(\.exe)?$/)
   {
-    # TODO
+    run $Config{cc}, $obj, '/link', '/dll', "/out:$dll";
+    $lib = File::Spec->catfile('src','foo.lib');
   }
   else
   {
@@ -91,6 +90,8 @@ subtest prep => sub {
 };
 
 subtest 'normal ffi' => sub {
+  plan skip_all => 'test requires FFI::Raw'
+    unless eval q{ use FFI::Raw; 1 };
   plan tests => 2;
 
   chdir $home;
@@ -107,6 +108,8 @@ subtest 'normal ffi' => sub {
 };
 
 subtest 'no static ffi' => sub {
+  plan skip_all => 'test requires FFI::Raw'
+    unless eval q{ use FFI::Raw; 1 };
   plan skip_all => 'test is for gcc only' if $Config{cc} =~ /cl(\.exe)?$/;
   plan tests => 4;
   
