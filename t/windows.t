@@ -99,7 +99,7 @@ subtest 'normal ffi' => sub {
 
   alien_ok 'Alien::Xenolith', { config => {
     cflags => "-I%d/include",
-    libs   => "-L%d/lib -lfoo",
+    libs   => $Config{cc} !~ /cl(\.exe)?$/ ? "-L%d/lib -lfoo" : "-LIBPATH:%d/lib foo.lib",
     root   => $home,
   }};
 

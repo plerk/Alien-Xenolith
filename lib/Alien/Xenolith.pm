@@ -283,17 +283,59 @@ sub _dlls
 {
   my($self) = @_;
   
-  require DynaLoader;
   require Text::ParseWords;
+  
+  if($^O eq 'MSWin32')
+  {
+    require Config;
+    if($Config::Config{cc} =~ /cl(\.exe)?$/)
+    {
+      # TODO: MSVC: http://msdn.microsoft.com/en-us/library/1xhzskbe.aspx
+      my @path;
+      push @path, File::Spec->rel2abs(File::Spec->curdir);
+      push @path, split $Config::Config{path_sep}, $ENV{LIB} if defined $ENV{LIB};
+      my @args = Text::ParseWords::shellwords($self->libs);
+      foreach my $arg (@args)
+      {
+        if($arg =~ m{[/-]libpath:(.*)$}i)
+        {
+          push @path, $1;
+        }
+      }
+      foreach my $arg (@args)
+      {
+        if($arg =~ m{^[^/-].*\.lib$}i)
+        {
+          foreach my $dir (@path)
+          {
+            my $lib = File::Spec->catfile($dir, $arg);
+            if(-r $lib)
+            {
+              $lib =~ s{\\}{/}g;
+              require Capture::Tiny;
+              my($out, $err) = Capture::Tiny::capture(sub {
+                system 'lib', '/list', $lib;
+              });
+              
+              my($maybe) = grep /\.dll$/, split /\n/, $out;
+              return if $maybe && $self->_dlls_find_in_path($maybe);
+            }
+          }
+        }
+      }
+      
+      return;
+    }
+  }
+
+  require DynaLoader;
 
   foreach my $extra('', '.dll')
   {
-    my @libs = 
     my $lib = DynaLoader::dl_findfile(
       map { s/^-l(.*)$/-l$1$extra/; $_ } 
       Text::ParseWords::shellwords($self->libs),
     );
-    # TODO: MSVC: http://msdn.microsoft.com/en-us/library/1xhzskbe.aspx
 
     next unless $lib;
 
@@ -342,8 +384,6 @@ sub _dlls
 
       my($maybe) = grep /\.dll$/, split /\n/, $out;
       return if $maybe && $self->_dlls_find_in_path($maybe);
-
-      # Todo: try lib.exe
     }
 
   }
@@ -352,9 +392,9 @@ sub _dlls
 sub _dlls_find_in_path
 {
   my($self, $name) = @_;
+  
   require Config;
-  $DB::single = 1;
-  foreach my $dir (split $Config::Config{path_sep}, $ENV{PATH})
+  foreach my $dir (File::Spec->rel2abs(File::Spec->curdir), split $Config::Config{path_sep}, $ENV{PATH})
   {
     my $maybe = File::Spec->catfile($dir, $name);
     if(-r $maybe)
