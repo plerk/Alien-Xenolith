@@ -368,7 +368,7 @@ sub _dlls
         return if $self->_dlls_find_in_path(File::Basename::basename($dlname));
       }
 
-      if(eval { require Archive::Ar::Libarchivex; 1 })
+      if(eval { require Archive::Ar::Libarchive; 1 })
       {
         my $ar = Archive::Ar::Libarchive->new($lib);
         my ($maybe) = grep m/\.dll$/, $ar->list_files;
